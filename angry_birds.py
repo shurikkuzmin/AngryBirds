@@ -7,6 +7,7 @@ Created on Sat Dec 10 09:49:54 2022
 """
 
 import pygame
+import numpy
 
 pygame.init()
 
@@ -23,6 +24,9 @@ class Bird():
         self.init_y = y
         self.radius = 150
         self.attached_to_mouse = False
+        self.vel_x = 0.0
+        self.vel_y = 0.0
+        self.start_movement = False
     
     def draw(self):
         pygame.draw.rect(screen,(255,192,203),self.rect)
@@ -40,12 +44,26 @@ class Bird():
     def detach_from_mouse(self):
         if self.attached_to_mouse == True:
             self.attached_to_mouse = False
+            self.start_movement = True
             
     def update(self):
+        x, y = pygame.mouse.get_pos()
+            
         if self.attached_to_mouse == True:
-            x, y = pygame.mouse.get_pos()
-            if (x - self.init_x)**2 + (y - self.init_y)**2 < self.radius**2:
+            dist = ((x - self.init_x)**2 + (y - self.init_y)**2)**0.5
+            if dist**2 < self.radius**2:
                 self.rect.center = (x, y)
+            else:
+                xprime = int(self.init_x + (x - self.init_x) * self.radius / dist)
+                yprime = int(self.init_y + (y - self.init_y) * self.radius / dist)
+                self.rect.center = (xprime, yprime)
+                
+        if self.start_movement == True:
+            xprime, yprime = self.rect.center
+            dist = ((xprime-self.init_x)**2 + (yprime-self.init_y)**2)**0.5
+            acc_x = 0.1 * (xprime - self.init_x)
+            acc_y = 0.1 * (yprime - self.init_y)
+        
 
 bird = Bird(200,500,30,30)
 
