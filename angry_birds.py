@@ -10,7 +10,7 @@ import pygame
 
 pygame.init()
 
-screen = pygame.display.set_mode((800, 800))
+screen = pygame.display.set_mode((1500, 800))
 
 clock = pygame.time.Clock()
 
@@ -29,11 +29,13 @@ class Bird():
         self.y = self.init_y
         self.vel_x = 0.0
         self.vel_y = 0.0
+        self.acc_x = 0.0
+        self.acc_y = 0.0
 
         self.radius = 150
         self.attached_to_mouse = False
         self.start_movement = False
-        self.detached = False
+        self.attached_to_spring = False
     
     def draw(self):
         pygame.draw.rect(screen,(255,192,203),self.rect)
@@ -67,23 +69,19 @@ class Bird():
                 
         if self.start_movement == True:
             dist = ((self.x - self.init_x)**2 + (self.y - self.init_y)**2)**0.5
-
-            acc_x = 0.0
-            acc_y = 0.0
-            
+      
             if dist < 5:
-                self.detached = True
-                
-            if self.detached:
-                acc_y = -5
-                
-            if self.detached == False:
-                acc_x = -2.5 * (self.x - self.init_x)
-                acc_y = -2.5 * (self.y - self.init_y)
-            self.vel_x = self.vel_x + acc_x * dt
-            self.vel_y = self.vel_y + acc_y * dt
-            self.x = self.x + self.vel_x * dt
-            self.y = self.y + self.vel_y * dt
+                self.attached_to_mouse = False
+                self.start_movement = False
+                self.acc_y = 100
+            else:    
+                self.acc_x = -5.0 * (self.x - self.init_x)
+                self.acc_y = -5.0 * (self.y - self.init_y)
+            
+        self.vel_x = self.vel_x + self.acc_x * dt
+        self.vel_y = self.vel_y + self.acc_y * dt
+        self.x = self.x + self.vel_x * dt
+        self.y = self.y + self.vel_y * dt
             
         self.rect.center = int(self.x), int(self.y)
             
