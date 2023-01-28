@@ -10,7 +10,9 @@ import pygame
 
 pygame.init()
 
-screen = pygame.display.set_mode((1500, 800))
+background = pygame.image.load("background.jpg")
+
+screen = pygame.display.set_mode(background.get_size())
 
 clock = pygame.time.Clock()
 
@@ -90,7 +92,7 @@ bird = Bird(200,500,30,30)
 
 isRunning = True
 while isRunning:
-    screen.fill((0,0,0))
+    screen.blit(background,(0,0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             isRunning = False
