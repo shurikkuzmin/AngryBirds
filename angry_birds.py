@@ -7,12 +7,15 @@ Created on Sat Dec 10 09:49:54 2022
 """
 
 import pygame
-import numpy
 
 pygame.init()
 
 screen = pygame.display.set_mode((800, 800))
 
+clock = pygame.time.Clock()
+
+fps = 60
+dt = 1.0 / fps
 width = 50
 height = 50
 
@@ -20,13 +23,17 @@ class Bird():
     def __init__(self, x, y, width, height):
         self.rect = pygame.Rect(0, 0, width, height)
         self.rect.center = (x, y)
-        self.init_x = x
-        self.init_y = y
-        self.radius = 150
-        self.attached_to_mouse = False
+        self.init_x = float(x)
+        self.init_y = float(y)
+        self.x = self.init_x
+        self.y = self.init_y
         self.vel_x = 0.0
         self.vel_y = 0.0
+
+        self.radius = 150
+        self.attached_to_mouse = False
         self.start_movement = False
+        self.detached = False
     
     def draw(self):
         pygame.draw.rect(screen,(255,192,203),self.rect)
@@ -52,18 +59,34 @@ class Bird():
         if self.attached_to_mouse == True:
             dist = ((x - self.init_x)**2 + (y - self.init_y)**2)**0.5
             if dist**2 < self.radius**2:
-                self.rect.center = (x, y)
+                self.x = float(x)
+                self.y = float(y)
             else:
-                xprime = int(self.init_x + (x - self.init_x) * self.radius / dist)
-                yprime = int(self.init_y + (y - self.init_y) * self.radius / dist)
-                self.rect.center = (xprime, yprime)
+                self.x = self.init_x + (x - self.init_x) * self.radius / dist
+                self.y = self.init_y + (y - self.init_y) * self.radius / dist
                 
         if self.start_movement == True:
-            xprime, yprime = self.rect.center
-            dist = ((xprime-self.init_x)**2 + (yprime-self.init_y)**2)**0.5
-            acc_x = 0.1 * (xprime - self.init_x)
-            acc_y = 0.1 * (yprime - self.init_y)
-        
+            dist = ((self.x - self.init_x)**2 + (self.y - self.init_y)**2)**0.5
+
+            acc_x = 0.0
+            acc_y = 0.0
+            
+            if dist < 5:
+                self.detached = True
+                
+            if self.detached:
+                acc_y = -5
+                
+            if self.detached == False:
+                acc_x = -2.5 * (self.x - self.init_x)
+                acc_y = -2.5 * (self.y - self.init_y)
+            self.vel_x = self.vel_x + acc_x * dt
+            self.vel_y = self.vel_y + acc_y * dt
+            self.x = self.x + self.vel_x * dt
+            self.y = self.y + self.vel_y * dt
+            
+        self.rect.center = int(self.x), int(self.y)
+            
 
 bird = Bird(200,500,30,30)
 
@@ -82,6 +105,7 @@ while isRunning:
     bird.update()
     bird.draw()
     
+    clock.tick(fps)
     pygame.display.update()
 
 pygame.quit()
