@@ -7,6 +7,13 @@ Created on Sat Dec 10 09:49:54 2022
 """
 
 import pygame
+from enum import Enum
+
+class Status(Enum):
+    NOTMOVING = 1
+    ATTACHED_MOUSE = 2
+    ATTACHED_SPRING = 3
+    FREE_FLY = 4
 
 pygame.init()
 
@@ -25,6 +32,8 @@ class Bird():
     def __init__(self, x, y, width, height):
         self.rect = pygame.Rect(0, 0, width, height)
         self.rect.center = (x, y)
+        
+        # Coordinates and accelarations
         self.init_x = float(x)
         self.init_y = float(y)
         self.x = self.init_x
@@ -35,32 +44,36 @@ class Bird():
         self.acc_y = 0.0
 
         self.radius = 150
-        self.attached_to_mouse = False
-        self.start_movement = False
-        self.attached_to_spring = False
+        
+        # Statuses
+        self.status = Status.NOTMOVING
+        #self.attached_to_mouse = False
+        #self.start_movement = False
+        #self.attached_to_spring = False
     
     def draw(self):
         pygame.draw.rect(screen,(255,192,203),self.rect)
 
-    def react_to_keyboard(self, key):
-        if key == pygame.K_UP:
-            self.rect = self.rect.move(0, -10)
-        if key == pygame.K_DOWN:
-            self.rect = self.rect.move(0,10)
-    def react_to_mouse(self, buttons):
-        if buttons[0] == True:
-            if self.rect.collidepoint(pygame.mouse.get_pos()):
-                self.attached_to_mouse = True
-                
-    def detach_from_mouse(self):
-        if self.attached_to_mouse == True:
-            self.attached_to_mouse = False
-            self.start_movement = True
+    def react(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if pygame.mouse.get_pressed()[0] == True:
+                if self.rect.collidepoint(pygame.mouse.get_pos()):
+                    self.status = Status.ATTACHED_MOUSE 
+        if event.type == pygame.MOUSEBUTTONUP:
+            if self.status == Status.ATTACHED_MOUSE:
+                dist = ((self.x - self.init_x)**2 + (self.y - self.init_y)**2)**0.5
+                if dist <= 15.0:
+                    self.status = Status.NOTMOVING
+                else:
+                    self.status = Status.ATTACHED_SPRING
+    
+    def check_status(self):
+        if self.status == Status.NOTMOVING:
+            self.x = self.init_x
+            self.y = self.init_y
             
-    def update(self):
-        x, y = pygame.mouse.get_pos()
-            
-        if self.attached_to_mouse == True:
+        if self.status == Status.ATTACHED_MOUSE:
+            x,y = pygame.mouse.get_pos()
             dist = ((x - self.init_x)**2 + (y - self.init_y)**2)**0.5
             if dist**2 < self.radius**2:
                 self.x = float(x)
@@ -69,17 +82,19 @@ class Bird():
                 self.x = self.init_x + (x - self.init_x) * self.radius / dist
                 self.y = self.init_y + (y - self.init_y) * self.radius / dist
                 
-        if self.start_movement == True:
+        if self.status == Status.ATTACHED_SPRING:
             dist = ((self.x - self.init_x)**2 + (self.y - self.init_y)**2)**0.5
-      
-            if dist < 5:
-                self.attached_to_mouse = False
-                self.start_movement = False
-                self.acc_y = 100
-            else:    
-                self.acc_x = -5.0 * (self.x - self.init_x)
-                self.acc_y = -5.0 * (self.y - self.init_y)
-            
+            if dist <= 5.0:
+                self.status = Status.FREE_FLY
+            self.acc_x = -5.0 * (self.x - self.init_x)
+            self.acc_y = -5.0 * (self.y - self.init_y)
+        
+        if self.status == Status.FREE_FLY:
+            self.acc_y = 130.0
+    
+    def update(self):  
+        self.check_status()
+        
         self.vel_x = self.vel_x + self.acc_x * dt
         self.vel_y = self.vel_y + self.acc_y * dt
         self.x = self.x + self.vel_x * dt
@@ -96,12 +111,8 @@ while isRunning:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             isRunning = False
-        if event.type == pygame.KEYDOWN:
-            bird.react_to_keyboard(event.key)
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            bird.react_to_mouse(pygame.mouse.get_pressed())
-        if event.type == pygame.MOUSEBUTTONUP:
-            bird.detach_from_mouse()
+        bird.react(event)
+
     bird.update()
     bird.draw()
     
