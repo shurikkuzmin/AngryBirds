@@ -45,11 +45,8 @@ class Bird():
 
         self.radius = 150
         
-        # Statuses
+        # Status
         self.status = Status.NOTMOVING
-        #self.attached_to_mouse = False
-        #self.start_movement = False
-        #self.attached_to_spring = False
     
     def draw(self):
         pygame.draw.rect(screen,(255,192,203),self.rect)
@@ -90,6 +87,7 @@ class Bird():
             self.acc_y = -5.0 * (self.y - self.init_y)
         
         if self.status == Status.FREE_FLY:
+            self.acc_x = 0.0
             self.acc_y = 130.0
     
     def update(self):  
