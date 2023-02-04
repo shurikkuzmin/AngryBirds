@@ -14,10 +14,12 @@ class Status(Enum):
     ATTACHED_MOUSE = 2
     ATTACHED_SPRING = 3
     FREE_FLY = 4
+    ON_EARTH = 5
 
 pygame.init()
 
 background = pygame.image.load("background.jpg")
+sprites = pygame.image.load("sprites.png")
 
 screen = pygame.display.set_mode(background.get_size())
 
@@ -29,8 +31,9 @@ width = 50
 height = 50
 
 class Bird():
-    def __init__(self, x, y, width, height):
-        self.rect = pygame.Rect(0, 0, width, height)
+    def __init__(self, x, y):
+        self.image = sprites.subsurface(513,913,75,75)
+        self.rect = pygame.Rect(0, 0, 75, 75)
         self.rect.center = (x, y)
         
         # Coordinates and accelarations
@@ -49,7 +52,8 @@ class Bird():
         self.status = Status.NOTMOVING
     
     def draw(self):
-        pygame.draw.rect(screen,(255,192,203),self.rect)
+        screen.blit(bird.image,self.rect)
+        #pygame.draw.rect(screen,(255,192,203),self.rect)
 
     def react(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -59,7 +63,7 @@ class Bird():
         if event.type == pygame.MOUSEBUTTONUP:
             if self.status == Status.ATTACHED_MOUSE:
                 dist = ((self.x - self.init_x)**2 + (self.y - self.init_y)**2)**0.5
-                if dist <= 15.0:
+                if dist <= 30.0:
                     self.status = Status.NOTMOVING
                 else:
                     self.status = Status.ATTACHED_SPRING
@@ -80,11 +84,14 @@ class Bird():
                 self.y = self.init_y + (y - self.init_y) * self.radius / dist
                 
         if self.status == Status.ATTACHED_SPRING:
-            dist = ((self.x - self.init_x)**2 + (self.y - self.init_y)**2)**0.5
-            if dist <= 5.0:
-                self.status = Status.FREE_FLY
-            self.acc_x = -5.0 * (self.x - self.init_x)
-            self.acc_y = -5.0 * (self.y - self.init_y)
+            if self.x > self.init_x:
+                self.status = Status.NOTMOVING
+            else:
+                dist = ((self.x - self.init_x)**2 + (self.y - self.init_y)**2)**0.5
+                if dist <= 5.0:
+                    self.status = Status.FREE_FLY
+                self.acc_x = -5.0 * (self.x - self.init_x)
+                self.acc_y = -5.0 * (self.y - self.init_y)
         
         if self.status == Status.FREE_FLY:
             self.acc_x = 0.0
@@ -101,7 +108,7 @@ class Bird():
         self.rect.center = int(self.x), int(self.y)
             
 
-bird = Bird(200,500,30,30)
+bird = Bird(200,500)
 
 isRunning = True
 while isRunning:
