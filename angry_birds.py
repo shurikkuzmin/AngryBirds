@@ -72,6 +72,10 @@ class Bird():
         if self.status == Status.NOTMOVING:
             self.x = self.init_x
             self.y = self.init_y
+            self.acc_x = 0
+            self.acc_y = 0
+            self.vel_y = 0
+            self.vel_x = 0
             
         if self.status == Status.ATTACHED_MOUSE:
             x,y = pygame.mouse.get_pos()
@@ -96,6 +100,13 @@ class Bird():
         if self.status == Status.FREE_FLY:
             self.acc_x = 0.0
             self.acc_y = 130.0
+            if self.y > background.get_size()[1]-175:
+                self.status = Status.ON_EARTH
+        if self.status == Status.ON_EARTH:
+            self.acc_x = 0
+            self.acc_y = 0
+            self.vel_y = 0
+            self.vel_x = 0
     
     def update(self):  
         self.check_status()
