@@ -7,6 +7,8 @@ Created on Sat Dec 10 09:49:54 2022
 """
 
 import pygame
+import pymunk
+
 from enum import Enum
 
 class Status(Enum):
@@ -22,8 +24,10 @@ background = pygame.image.load("background.jpg")
 sprites = pygame.image.load("sprites.png")
 
 screen = pygame.display.set_mode(background.get_size())
-
 clock = pygame.time.Clock()
+space = pymunk.Space()
+space.gravity = 0.0, -200.0
+space.damping = 0.9
 
 fps = 60
 dt = 1.0 / fps
@@ -37,22 +41,30 @@ class Bird():
         self.rect.center = (x, y)
         
         # Coordinates and accelarations
+        self.bird_body = pymunk.Body()
+        self.bird_body.position = float(x), float(y)
+        
+        self.bird_shape = pymunk.Circle(self.bird_body, 37.0)
+        self.bird_shape.friction = 1.0
+        self.bird_shape.elasticity = 0.8
+        
         self.init_x = float(x)
         self.init_y = float(y)
-        self.x = self.init_x
-        self.y = self.init_y
-        self.vel_x = 0.0
-        self.vel_y = 0.0
-        self.acc_x = 0.0
-        self.acc_y = 0.0
-
         self.radius = 150
+        
+        #self.x = self.init_x
+        #self.y = self.init_y
+        #self.vel_x = 0.0
+        #self.vel_y = 0.0
+        #self.acc_x = 0.0
+        #self.acc_y = 0.0
+
         
         # Status
         self.status = Status.NOTMOVING
     
     def draw(self):
-        screen.blit(bird.image,self.rect)
+        screen.blit(bird.image, self.rect)
         #pygame.draw.rect(screen,(255,192,203),self.rect)
 
     def react(self, event):
@@ -111,15 +123,16 @@ class Bird():
     def update(self):  
         self.check_status()
         
-        self.vel_x = self.vel_x + self.acc_x * dt
-        self.vel_y = self.vel_y + self.acc_y * dt
-        self.x = self.x + self.vel_x * dt
-        self.y = self.y + self.vel_y * dt
+        #self.vel_x = self.vel_x + self.acc_x * dt
+        #self.vel_y = self.vel_y + self.acc_y * dt
+        #self.x = self.x + self.vel_x * dt
+        #self.y = self.y + self.vel_y * dt
             
-        self.rect.center = int(self.x), int(self.y)
+        x, y = self.bird_body.position
+        self.rect.center = int(x), background.get_height()-int(y)  
             
 
-bird = Bird(200,500)
+bird = Bird(200,300)
 
 isRunning = True
 while isRunning:
@@ -132,6 +145,7 @@ while isRunning:
     bird.update()
     bird.draw()
     
+    space.step(1.0 / fps)
     clock.tick(fps)
     pygame.display.update()
 
