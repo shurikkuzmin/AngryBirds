@@ -55,6 +55,7 @@ class Bird():
         self.bird_shape = pymunk.Circle(self.bird_body, 37.0)
         self.bird_shape.friction = 1.0
         self.bird_shape.elasticity = 0.8
+        self.bird_shape.density = 1.0
         
         self.init_x, self.init_y = convert_to_pygame(x,y)
         self.radius = 150
@@ -72,11 +73,16 @@ class Bird():
                     self.status = Status.ATTACHED_MOUSE 
         if event.type == pygame.MOUSEBUTTONUP:
             if self.status == Status.ATTACHED_MOUSE:
-                dist = ((self.x - self.init_x)**2 + (self.y - self.init_y)**2)**0.5
+                x, y = self.rect.center
+                dist = ((x - self.init_x)**2 + (y - self.init_y)**2)**0.5
                 if dist <= 30.0:
                     self.status = Status.NOTMOVING
                 else:
-                    self.status = Status.ATTACHED_SPRING
+                    vel_x = -float(x - self.init_x)
+                    vel_y = float(y - self.init_y)
+                    self.bird_body.velocity = vel_x, vel_y
+                    space.add(self.bird_body, self.bird_shape)
+                    self.status = Status.FREE_FLY
     
     def check_status(self):
         if self.status == Status.NOTMOVING:
@@ -102,10 +108,8 @@ class Bird():
                 self.acc_y = -5.0 * (self.y - self.init_y)
         
         if self.status == Status.FREE_FLY:
-            self.acc_x = 0.0
-            self.acc_y = 130.0
-            if self.y > background.get_size()[1]-175:
-                self.status = Status.ON_EARTH
+            pass
+        
         if self.status == Status.ON_EARTH:
             self.acc_x = 0
             self.acc_y = 0
@@ -119,7 +123,7 @@ class Bird():
         self.rect.center = convert_to_pygame(x, y)
         
 # Bird is created in physics coordinates
-bird = Bird(200.0,200.0)
+bird = Bird(200.0, 300.0)
 
 isRunning = True
 while isRunning:
