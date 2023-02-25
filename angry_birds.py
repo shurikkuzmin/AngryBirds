@@ -23,7 +23,9 @@ pygame.init()
 background = pygame.image.load("background.jpg")
 sprites = pygame.image.load("sprites.png")
 
-screen = pygame.display.set_mode(background.get_size())
+width, height = background.get_size()
+screen = pygame.display.set_mode((width, height))
+
 clock = pygame.time.Clock()
 space = pymunk.Space()
 space.gravity = 0.0, -200.0
@@ -34,8 +36,14 @@ dt = 1.0 / fps
 width = 50
 height = 50
 
+def convert_to_pymunk(x: int, y: int):
+    return float(x), float(height - y)
+
+def convert_to_pygame(x: float, y: float):
+    return int(x), int(height - y)
+
 class Bird():
-    def __init__(self, x, y):
+    def __init__(self, x: float, y: float):
         self.image = sprites.subsurface(513,913,75,75)
         self.rect = pygame.Rect(0, 0, 75, 75)
         self.rect.center = (x, y)
@@ -131,8 +139,8 @@ class Bird():
         x, y = self.bird_body.position
         self.rect.center = int(x), background.get_height()-int(y)  
             
-
-bird = Bird(200,300)
+# Bird is created in physics coordinates
+bird = Bird(200.0,200.0)
 
 isRunning = True
 while isRunning:
