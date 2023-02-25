@@ -46,28 +46,19 @@ class Bird():
     def __init__(self, x: float, y: float):
         self.image = sprites.subsurface(513,913,75,75)
         self.rect = pygame.Rect(0, 0, 75, 75)
-        self.rect.center = (x, y)
+        self.rect.center = convert_to_pygame(x, y)
         
         # Coordinates and accelarations
         self.bird_body = pymunk.Body()
-        self.bird_body.position = float(x), float(y)
+        self.bird_body.position = x, y
         
         self.bird_shape = pymunk.Circle(self.bird_body, 37.0)
         self.bird_shape.friction = 1.0
         self.bird_shape.elasticity = 0.8
         
-        self.init_x = float(x)
-        self.init_y = float(y)
+        self.init_x, self.init_y = convert_to_pygame(x,y)
         self.radius = 150
-        
-        #self.x = self.init_x
-        #self.y = self.init_y
-        #self.vel_x = 0.0
-        #self.vel_y = 0.0
-        #self.acc_x = 0.0
-        #self.acc_y = 0.0
-
-        
+            
         # Status
         self.status = Status.NOTMOVING
     
