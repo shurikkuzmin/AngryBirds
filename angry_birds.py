@@ -23,8 +23,8 @@ pygame.init()
 background = pygame.image.load("background.jpg")
 sprites = pygame.image.load("sprites.png")
 
-width, height = background.get_size()
-screen = pygame.display.set_mode((width, height))
+screen_width, screen_height = background.get_size()
+screen = pygame.display.set_mode((screen_width, screen_height))
 
 clock = pygame.time.Clock()
 space = pymunk.Space()
@@ -37,10 +37,10 @@ width = 50
 height = 50
 
 def convert_to_pymunk(x: int, y: int):
-    return float(x), float(height - y)
+    return float(x), float(screen_height - y)
 
 def convert_to_pygame(x: float, y: float):
-    return int(x), int(height - y)
+    return int(x), int(screen_height - y)
 
 class Bird():
     def __init__(self, x: float, y: float):
@@ -64,7 +64,6 @@ class Bird():
     
     def draw(self):
         screen.blit(bird.image, self.rect)
-        #pygame.draw.rect(screen,(255,192,203),self.rect)
 
     def react(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -81,23 +80,17 @@ class Bird():
     
     def check_status(self):
         if self.status == Status.NOTMOVING:
-            self.x = self.init_x
-            self.y = self.init_y
-            self.acc_x = 0
-            self.acc_y = 0
-            self.vel_y = 0
-            self.vel_x = 0
+            self.bird_body.position = convert_to_pymunk(self.init_x, self.init_y)
             
         if self.status == Status.ATTACHED_MOUSE:
             x,y = pygame.mouse.get_pos()
             dist = ((x - self.init_x)**2 + (y - self.init_y)**2)**0.5
             if dist**2 < self.radius**2:
-                self.x = float(x)
-                self.y = float(y)
+                self.bird_body.position = convert_to_pymunk(x, y)
             else:
-                self.x = self.init_x + (x - self.init_x) * self.radius / dist
-                self.y = self.init_y + (y - self.init_y) * self.radius / dist
-                
+                x2 = self.init_x + (x - self.init_x) * self.radius / dist
+                y2 = self.init_y + (y - self.init_y) * self.radius / dist
+                self.bird_body.position = convert_to_pymunk(x2, y2)
         if self.status == Status.ATTACHED_SPRING:
             if self.x > self.init_x:
                 self.status = Status.NOTMOVING
@@ -120,16 +113,11 @@ class Bird():
             self.vel_x = 0
     
     def update(self):  
-        self.check_status()
+        self.check_status() 
         
-        #self.vel_x = self.vel_x + self.acc_x * dt
-        #self.vel_y = self.vel_y + self.acc_y * dt
-        #self.x = self.x + self.vel_x * dt
-        #self.y = self.y + self.vel_y * dt
-            
-        x, y = self.bird_body.position
-        self.rect.center = int(x), background.get_height()-int(y)  
-            
+        x, y = self.bird_body.position                  
+        self.rect.center = convert_to_pygame(x, y)
+        
 # Bird is created in physics coordinates
 bird = Bird(200.0,200.0)
 
