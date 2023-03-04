@@ -42,18 +42,37 @@ def convert_to_pymunk(x: int, y: int):
 def convert_to_pygame(x: float, y: float):
     return int(x), int(screen_height - y)
 
+class Earth():
+    def __init__(self, init_y):
+        self.earth_body = pymunk.Body(body_type = pymunk.Body.STATIC)
+        self.earth_shape = pymunk.Segment(self.earth_body, (0.0, init_y), (screen_width, init_y), 4.0)
+        self.earth_shape.friction = 0.7
+        self.earth_shape.elasticity = 0.8
+        space.add(self.earth_body, self.earth_shape)
+
 class Bird():
     def __init__(self, x: float, y: float):
         self.image = sprites.subsurface(513,913,75,75)
         self.rect = pygame.Rect(0, 0, 75, 75)
         self.rect.center = convert_to_pygame(x, y)
         
+        # Launcher
+        self.launcher_front = sprites.subsurface(0,0,40,200)
+        self.launcher_front_rect = self.launcher_front.get_rect()
+        self.launcher_front_rect.center = convert_to_pygame(x + 5.0, y - 50.0)
+        
+        self.launcher_back = sprites.subsurface(0,840,45,130) 
+        self.launcher_back_rect = self.launcher_back.get_rect()
+        self.launcher_back_rect.bottomright = convert_to_pygame(x, y - 70.0)
+        
+        
         # Coordinates and accelarations
         self.bird_body = pymunk.Body()
         self.bird_body.position = x, y
         
-        self.bird_shape = pymunk.Circle(self.bird_body, 37.0)
-        self.bird_shape.friction = 1.0
+        #self.bird_shape = pymunk.Circle(self.bird_body, 37.0)
+        self.bird_shape = pymunk.Poly.create_box(self.bird_body, (74.0, 74.0))
+        self.bird_shape.friction = 0.2
         self.bird_shape.elasticity = 0.8
         self.bird_shape.density = 1.0
         
@@ -64,7 +83,9 @@ class Bird():
         self.status = Status.NOTMOVING
     
     def draw(self):
-        screen.blit(bird.image, self.rect)
+        screen.blit(self.launcher_back,self.launcher_back_rect)
+        screen.blit(self.image, self.rect)
+        screen.blit(self.launcher_front, self.launcher_front_rect)
 
     def react(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -78,8 +99,8 @@ class Bird():
                 if dist <= 30.0:
                     self.status = Status.NOTMOVING
                 else:
-                    vel_x = -float(x - self.init_x)
-                    vel_y = float(y - self.init_y)
+                    vel_x = -3.3*float(x - self.init_x)
+                    vel_y = 3.3*float(y - self.init_y)
                     self.bird_body.velocity = vel_x, vel_y
                     space.add(self.bird_body, self.bird_shape)
                     self.status = Status.FREE_FLY
@@ -124,6 +145,7 @@ class Bird():
         
 # Bird is created in physics coordinates
 bird = Bird(200.0, 300.0)
+earth = Earth(130.0)
 
 isRunning = True
 while isRunning:
