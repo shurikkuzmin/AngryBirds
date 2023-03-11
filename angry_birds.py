@@ -43,17 +43,36 @@ def convert_to_pygame(x: float, y: float):
     return int(x), int(screen_height - y)
 
 class Earth():
-    def __init__(self, init_y):
+    def __init__(self, init_y: float):
         self.earth_body = pymunk.Body(body_type = pymunk.Body.STATIC)
         self.earth_shape = pymunk.Segment(self.earth_body, (0.0, init_y), (screen_width, init_y), 4.0)
         self.earth_shape.friction = 0.7
         self.earth_shape.elasticity = 0.8
         space.add(self.earth_body, self.earth_shape)
 
+class Pig():
+    def __init__(self, x: float, y: float):
+        self.pig_body = pymunk.Body()
+        self.pig_body.position = x, y
+        self.pig_shape = pymunk.Poly.create_box(self.pig_body, (119, 107))
+        self.pig_shape.density = 0.1
+        self.image = sprites.subsurface(281, 845, 119, 107)
+        self.rect = self.image.get_rect()
+        
+        space.add(self.pig_body, self.pig_shape)
+    
+    def update(self):
+        x, y = self.pig_body.position
+        self.rect.center = convert_to_pygame(x, y)
+    
+    def draw(self):
+        screen.blit(self.image, self.rect)
+
+
 class Bird():
     def __init__(self, x: float, y: float):
-        self.image = sprites.subsurface(513,913,75,75)
-        self.rect = pygame.Rect(0, 0, 75, 75)
+        self.image = sprites.subsurface(513,913,70,55)
+        self.rect = pygame.Rect(0, 0, 70, 55)
         self.rect.center = convert_to_pygame(x, y)
         
         # Launcher
@@ -71,7 +90,7 @@ class Bird():
         self.bird_body.position = x, y
         
         #self.bird_shape = pymunk.Circle(self.bird_body, 37.0)
-        self.bird_shape = pymunk.Poly.create_box(self.bird_body, (74.0, 74.0))
+        self.bird_shape = pymunk.Poly.create_box(self.bird_body, (70.0, 55.0))
         self.bird_shape.friction = 0.2
         self.bird_shape.elasticity = 0.8
         self.bird_shape.density = 1.0
@@ -84,8 +103,28 @@ class Bird():
     
     def draw(self):
         screen.blit(self.launcher_back,self.launcher_back_rect)
+        
+        xback, yback = self.launcher_back_rect.topright
+        yback = yback + 30
+        xback = xback - 30
+        xbottom, ybottom = self.rect.bottomleft
+        xbottom = xbottom + 15
+        ybottom = ybottom - 5
+        pygame.draw.line(screen, (59, 30, 8), (xbottom, ybottom), 
+                         (xback, yback), 10)
+        
+        
         screen.blit(self.image, self.rect)
         screen.blit(self.launcher_front, self.launcher_front_rect)
+        
+        xfront, yfront = self.launcher_front_rect.topright
+        yfront = yfront + 30
+        xfront = xfront - 10
+        xbottom, ybottom = self.rect.bottomleft
+        xbottom = xbottom + 15
+        ybottom = ybottom - 5
+        pygame.draw.line(screen, (59, 30, 8), (xbottom, ybottom), 
+                         (xfront, yfront), 10)
 
     def react(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -146,6 +185,12 @@ class Bird():
 # Bird is created in physics coordinates
 bird = Bird(200.0, 300.0)
 earth = Earth(130.0)
+pig1 = Pig(800.0,250.0)
+pig2 = Pig(800.0,350.0)
+pig3 = Pig(800.0,450.0)
+pig4 = Pig(800.0,550.0)
+pig5 = Pig(600.0,250.0)
+
 
 isRunning = True
 while isRunning:
@@ -157,6 +202,19 @@ while isRunning:
 
     bird.update()
     bird.draw()
+    pig1.update()
+    pig1.draw()
+    pig2.update()
+    pig2.draw()
+    pig3.update()
+    pig3.draw()
+    pig4.update()
+    pig4.draw()
+    pig5.update()
+    pig5.draw()
+
+
+
     
     space.step(1.0 / fps)
     clock.tick(fps)
