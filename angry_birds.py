@@ -45,7 +45,7 @@ def convert_to_pygame(x: float, y: float):
 class Earth():
     def __init__(self, init_y: float):
         self.earth_body = pymunk.Body(body_type = pymunk.Body.STATIC)
-        self.earth_shape = pymunk.Segment(self.earth_body, (0.0, init_y), (screen_width, init_y), 4.0)
+        self.earth_shape = pymunk.Segment(self.earth_body, (-5.0*screen_width, init_y), (5.0*screen_width, init_y), 4.0)
         self.earth_shape.friction = 0.7
         self.earth_shape.elasticity = 0.8
         space.add(self.earth_body, self.earth_shape)
@@ -56,6 +56,8 @@ class Pig():
         self.pig_body.position = x, y
         self.pig_shape = pymunk.Poly.create_box(self.pig_body, (119, 107))
         self.pig_shape.density = 0.1
+        self.pig_shape.friction = 0.2
+        self.pig_shape.elasticity = 0.8
         self.image = sprites.subsurface(281, 845, 119, 107)
         self.rect = self.image.get_rect()
         
@@ -110,9 +112,12 @@ class Bird():
         xbottom, ybottom = self.rect.bottomleft
         xbottom = xbottom + 15
         ybottom = ybottom - 5
+        
+        if self.status == Status.FREE_FLY:
+            xbottom = self.init_x
+            ybottom = self.init_y
         pygame.draw.line(screen, (59, 30, 8), (xbottom, ybottom), 
                          (xback, yback), 10)
-        
         
         screen.blit(self.image, self.rect)
         screen.blit(self.launcher_front, self.launcher_front_rect)
@@ -123,6 +128,10 @@ class Bird():
         xbottom, ybottom = self.rect.bottomleft
         xbottom = xbottom + 15
         ybottom = ybottom - 5
+        if self.status == Status.FREE_FLY:
+            xbottom = self.init_x
+            ybottom = self.init_y
+        
         pygame.draw.line(screen, (59, 30, 8), (xbottom, ybottom), 
                          (xfront, yfront), 10)
 
@@ -191,6 +200,7 @@ pig3 = Pig(800.0,450.0)
 pig4 = Pig(800.0,550.0)
 pig5 = Pig(600.0,250.0)
 
+objects = [bird, pig1, pig2, pig3, pig4, pig5]
 
 isRunning = True
 while isRunning:
