@@ -36,11 +36,28 @@ dt = 1.0 / fps
 width = 50
 height = 50
 
+pole_size = 200.0
+pole_width = 30.0
+
 def convert_to_pymunk(x: int, y: int):
     return float(x), float(screen_height - y)
 
 def convert_to_pygame(x: float, y: float):
     return int(x), int(screen_height - y)
+
+class Pole():
+    def __init__(self, init_x: float):
+        self.body = pymunk.Body()
+        self.body.position = init_x, 130.0 + 0.5*pole_size
+        self.shape = pymunk.Segment(self.body, (init_x, 130.0), (init_x, 130.0 + pole_size), pole_width)
+        self.shape.density = 5.0
+        #self.rect = pygame.Rect((0,0),(pole_width, pole_size))
+    def update(self):
+        x, y = self.body.position
+        #self.rect.center = convert_to_pygame(x, y)
+    def draw(self):
+        x, y = convert_to_pygame(self.body.position)
+        pygame.draw.line(screen, (150,116,68), (x,y-int(0.5*pole_size)), (x, y+int(0.5*pole_size)), int(pole_width))
 
 class Earth():
     def __init__(self, init_y: float):
@@ -195,12 +212,12 @@ class Bird():
 bird = Bird(200.0, 300.0)
 earth = Earth(130.0)
 pig1 = Pig(800.0,250.0)
-pig2 = Pig(800.0,350.0)
-pig3 = Pig(800.0,450.0)
-pig4 = Pig(800.0,550.0)
-pig5 = Pig(600.0,250.0)
+#pig2 = Pig(800.0,350.0)
+#pig3 = Pig(800.0,450.0)
+#pig4 = Pig(800.0,550.0)
+#pig5 = Pig(600.0,250.0)
 
-objects = [bird, pig1, pig2, pig3, pig4, pig5]
+objects = [bird, pig1] #, pig2, pig3, pig4, pig5]
 
 isRunning = True
 while isRunning:
@@ -210,21 +227,9 @@ while isRunning:
             isRunning = False
         bird.react(event)
 
-    bird.update()
-    bird.draw()
-    pig1.update()
-    pig1.draw()
-    pig2.update()
-    pig2.draw()
-    pig3.update()
-    pig3.draw()
-    pig4.update()
-    pig4.draw()
-    pig5.update()
-    pig5.draw()
-
-
-
+    for obj in objects:
+        obj.update()
+        obj.draw()
     
     space.step(1.0 / fps)
     clock.tick(fps)
