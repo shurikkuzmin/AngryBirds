@@ -56,8 +56,14 @@ class Pole():
         x, y = self.body.position
         #self.rect.center = convert_to_pygame(x, y)
     def draw(self):
-        x, y = convert_to_pygame(self.body.position)
-        pygame.draw.line(screen, (150,116,68), (x,y-int(0.5*pole_size)), (x, y+int(0.5*pole_size)), int(pole_width))
+        # To properly draw the segment, the information is here: 
+        # https://stackoverflow.com/questions/70320642/python-code-problem-displaying-a-polygon-in-pygame-using-a-polygon-modeled-in-py
+        
+        x1, y1 = convert_to_pygame(self.shape.a)
+        x2, y2 = convert_to_pygame(self.shape.b) 
+        pygame.draw.line(screen, (150,116,68), (x1,y1), (x2, y2), int(pole_width))
+        #x, y = convert_to_pygame(self.body.position)
+        #pygame.draw.line(screen, (150,116,68), (x,y-int(0.5*pole_size)), (x, y+int(0.5*pole_size)), int(pole_width))
 
 class Earth():
     def __init__(self, init_y: float):
