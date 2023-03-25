@@ -48,22 +48,28 @@ def convert_to_pygame(x: float, y: float):
 class Pole():
     def __init__(self, init_x: float):
         self.body = pymunk.Body()
-        self.body.position = init_x, 130.0 + 0.5*pole_size
-        self.shape = pymunk.Segment(self.body, (init_x, 130.0), (init_x, 130.0 + pole_size), pole_width)
-        self.shape.density = 5.0
-        #self.rect = pygame.Rect((0,0),(pole_width, pole_size))
+        self.body.position = init_x, 200.0 + 0.5*pole_size
+        self.shape = pymunk.Segment(self.body, (0.0, -0.5*pole_size), (0.0, 0.5*pole_size), pole_width)
+        
+        self.shape.density = 0.5
+        self.shape.friction = 0.8
+        self.shape.elasticity = 0.5
+                
+        space.add(self.body, self.shape)
+        
     def update(self):
         x, y = self.body.position
-        #self.rect.center = convert_to_pygame(x, y)
+        
     def draw(self):
         # To properly draw the segment, the information is here: 
         # https://stackoverflow.com/questions/70320642/python-code-problem-displaying-a-polygon-in-pygame-using-a-polygon-modeled-in-py
         
-        x1, y1 = convert_to_pygame(self.shape.a)
-        x2, y2 = convert_to_pygame(self.shape.b) 
+        x, y = self.body.position
+        x1, y1 = self.shape.a.rotated(self.body.angle)
+        x2, y2 = self.shape.b.rotated(self.body.angle)
+        x1, y1 = convert_to_pygame(x+x1, y+y1)
+        x2, y2 = convert_to_pygame(x+x2, y+y2) 
         pygame.draw.line(screen, (150,116,68), (x1,y1), (x2, y2), int(pole_width))
-        #x, y = convert_to_pygame(self.body.position)
-        #pygame.draw.line(screen, (150,116,68), (x,y-int(0.5*pole_size)), (x, y+int(0.5*pole_size)), int(pole_width))
 
 class Earth():
     def __init__(self, init_y: float):
@@ -79,7 +85,7 @@ class Pig():
         self.pig_body.position = x, y
         self.pig_shape = pymunk.Poly.create_box(self.pig_body, (119, 107))
         self.pig_shape.density = 0.1
-        self.pig_shape.friction = 0.2
+        self.pig_shape.friction = 0.5
         self.pig_shape.elasticity = 0.8
         self.image = sprites.subsurface(281, 845, 119, 107)
         self.rect = self.image.get_rect()
@@ -215,6 +221,7 @@ class Bird():
         self.rect.center = convert_to_pygame(x, y)
         
 # Bird is created in physics coordinates
+pole = Pole(500.0)
 bird = Bird(200.0, 300.0)
 earth = Earth(130.0)
 pig1 = Pig(800.0,250.0)
@@ -223,7 +230,7 @@ pig1 = Pig(800.0,250.0)
 #pig4 = Pig(800.0,550.0)
 #pig5 = Pig(600.0,250.0)
 
-objects = [bird, pig1] #, pig2, pig3, pig4, pig5]
+objects = [bird, pig1, pole] #, pig2, pig3, pig4, pig5]
 
 isRunning = True
 while isRunning:
