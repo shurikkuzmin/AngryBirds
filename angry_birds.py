@@ -8,6 +8,7 @@ Created on Sat Dec 10 09:49:54 2022
 
 import pygame
 import pymunk
+import numpy
 
 from enum import Enum
 
@@ -36,8 +37,8 @@ dt = 1.0 / fps
 width = 50
 height = 50
 
-pole_size = 200.0
-pole_width = 30.0
+#pole_size = 200.0
+#pole_width = 30.0
 
 def convert_to_pymunk(x: int, y: int):
     return float(x), float(screen_height - y)
@@ -45,11 +46,13 @@ def convert_to_pymunk(x: int, y: int):
 def convert_to_pygame(x: float, y: float):
     return int(x), int(screen_height - y)
 
-class Pole():
+class VerticalPole():
     def __init__(self, init_x: float):
+        image = pygame.image.load("wood.png")
+        self.image = image.subsurface((160,1),(23,169))
         self.body = pymunk.Body()
-        self.body.position = init_x, 200.0 + 0.5*pole_size
-        self.shape = pymunk.Segment(self.body, (0.0, -0.5*pole_size), (0.0, 0.5*pole_size), pole_width)
+        self.body.position = init_x, 200.0 + 0.5*169
+        self.shape = pymunk.Segment(self.body, (0.0, -0.5*169), (0.0, 0.5*169), 23)
         
         self.shape.density = 0.5
         self.shape.friction = 0.8
@@ -58,18 +61,44 @@ class Pole():
         space.add(self.body, self.shape)
         
     def update(self):
-        x, y = self.body.position
+        pass
         
     def draw(self):
         # To properly draw the segment, the information is here: 
         # https://stackoverflow.com/questions/70320642/python-code-problem-displaying-a-polygon-in-pygame-using-a-polygon-modeled-in-py
-        
         x, y = self.body.position
-        x1, y1 = self.shape.a.rotated(self.body.angle)
-        x2, y2 = self.shape.b.rotated(self.body.angle)
-        x1, y1 = convert_to_pygame(x+x1, y+y1)
-        x2, y2 = convert_to_pygame(x+x2, y+y2) 
-        pygame.draw.line(screen, (150,116,68), (x1,y1), (x2, y2), int(pole_width))
+        image_rotated=pygame.transform.rotate(self.image, self.body.angle / numpy.pi * 180.0)
+        rect = image_rotated.get_rect()
+        rect.center = convert_to_pygame(x,y)
+        screen.blit(image_rotated, rect)
+class HorizontalPole():
+    def __init__(self, init_x: float, init_y: float):
+        image = pygame.image.load("wood.png")
+        self.image = pygame.transform.rotate(image.subsurface((160,1),(23,169)),90)
+        print(self.image.get_rect().center, self.image.get_rect().left)
+        self.body = pymunk.Body()
+        self.body.position = init_x, init_y
+        self.shape = pymunk.Segment(self.body, (-0.5*169, -11.5), (0.5*169, -11.5), 23.0)
+        
+        self.shape.density = 0.5
+        self.shape.friction = 0.8
+        self.shape.elasticity = 0.5
+                
+        space.add(self.body, self.shape)
+        
+    def update(self):
+        pass
+        
+    def draw(self):
+        # To properly draw the segment, the information is here: 
+        # https://stackoverflow.com/questions/70320642/python-code-problem-displaying-a-polygon-in-pygame-using-a-polygon-modeled-in-py
+        x, y = self.body.position
+        image_rotated=pygame.transform.rotate(self.image, self.body.angle / numpy.pi * 180.0)
+        rect = image_rotated.get_rect()
+        rect.center = convert_to_pygame(x,y)
+        screen.blit(image_rotated, rect)
+
+
 
 class Earth():
     def __init__(self, init_y: float):
@@ -83,7 +112,7 @@ class Pig():
     def __init__(self, x: float, y: float):
         self.pig_body = pymunk.Body()
         self.pig_body.position = x, y
-        self.pig_shape = pymunk.Poly.create_box(self.pig_body, (119, 107))
+        self.pig_shape = pymunk.Poly.create_box(self.pig_body, (80, 80))
         self.pig_shape.density = 0.1
         self.pig_shape.friction = 0.5
         self.pig_shape.elasticity = 0.8
@@ -221,16 +250,18 @@ class Bird():
         self.rect.center = convert_to_pygame(x, y)
         
 # Bird is created in physics coordinates
-pole = Pole(500.0)
+#pole1 = VerticalPole(700.0)
+#pole2 = VerticalPole(900.0)
+pole3 = HorizontalPole(800.0, 500.0)
 bird = Bird(200.0, 300.0)
 earth = Earth(130.0)
-pig1 = Pig(800.0,250.0)
+#pig1 = Pig(800.0,250.0)
 #pig2 = Pig(800.0,350.0)
 #pig3 = Pig(800.0,450.0)
 #pig4 = Pig(800.0,550.0)
 #pig5 = Pig(600.0,250.0)
 
-objects = [bird, pig1, pole] #, pig2, pig3, pig4, pig5]
+objects = [bird, pole3] #, pig2, pig3, pig4, pig5]
 
 isRunning = True
 while isRunning:
