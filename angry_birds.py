@@ -52,8 +52,8 @@ class VerticalPole():
         self.image = image.subsurface((160,1),(23,169))
         self.body = pymunk.Body()
         self.body.position = init_x, 200.0 + 0.5*169
-        self.shape = pymunk.Segment(self.body, (0.0, -0.5*169), (0.0, 0.5*169), 23)
-        
+        self.shape = pymunk.Poly.create_box(self.body, (23, 169))
+
         self.shape.density = 0.5
         self.shape.friction = 0.8
         self.shape.elasticity = 0.5
@@ -71,15 +71,16 @@ class VerticalPole():
         rect = image_rotated.get_rect()
         rect.center = convert_to_pygame(x,y)
         screen.blit(image_rotated, rect)
+
 class HorizontalPole():
     def __init__(self, init_x: float, init_y: float):
         image = pygame.image.load("wood.png")
         self.image = pygame.transform.rotate(image.subsurface((160,1),(23,169)),90)
-        print(self.image.get_rect().center, self.image.get_rect().left)
         self.body = pymunk.Body()
         self.body.position = init_x, init_y
-        self.shape = pymunk.Segment(self.body, (-0.5*169, -11.5), (0.5*169, -11.5), 23.0)
-        
+        self.shape = pymunk.Poly.create_box(self.body,(169, 23))
+
+
         self.shape.density = 0.5
         self.shape.friction = 0.8
         self.shape.elasticity = 0.5
@@ -251,7 +252,7 @@ class Bird():
         
 # Bird is created in physics coordinates
 #pole1 = VerticalPole(700.0)
-#pole2 = VerticalPole(900.0)
+pole2 = VerticalPole(950.0)
 pole3 = HorizontalPole(800.0, 500.0)
 bird = Bird(200.0, 300.0)
 earth = Earth(130.0)
@@ -261,7 +262,7 @@ earth = Earth(130.0)
 #pig4 = Pig(800.0,550.0)
 #pig5 = Pig(600.0,250.0)
 
-objects = [bird, pole3] #, pig2, pig3, pig4, pig5]
+objects = [bird, pole2, pole3] #, pig2, pig3, pig4, pig5]
 
 isRunning = True
 while isRunning:
