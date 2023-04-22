@@ -93,11 +93,12 @@ class Pig():
     def __init__(self, x: float, y: float):
         self.pig_body = pymunk.Body()
         self.pig_body.position = x, y
-        self.pig_shape = pymunk.Poly.create_box(self.pig_body, (80, 80))
+        self.pig_shape = pymunk.Poly.create_box(self.pig_body, (45, 45))
         self.pig_shape.density = 0.1
         self.pig_shape.friction = 0.5
         self.pig_shape.elasticity = 0.8
-        self.image = sprites.subsurface(281, 845, 119, 107)
+        image = sprites.subsurface(281, 845, 119, 107)
+        self.image = pygame.transform.scale(image, (60, 54))
         self.rect = self.image.get_rect()
         
         space.add(self.pig_body, self.pig_shape)
