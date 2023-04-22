@@ -65,6 +65,7 @@ class Pole():
         self.shape.density = 0.5
         self.shape.friction = 0.8
         self.shape.elasticity = 0.5
+        self.shape.collision_type = 3
                 
         space.add(self.body, self.shape)
         
@@ -116,7 +117,8 @@ class Bird():
         image1 = sprites.subsurface(517,913,65,55)
         image2 = sprites.subsurface(585,913,65,55)
         image3 = sprites.subsurface(651,913,65,55)
-        self.images = [image1, image2, image3]
+        image4 = sprites.subsurface(536,870,65,55)
+        self.images = [image1, image2, image3, image4]
         #self.image = sprites.subsurface(513,913,70,55)
         self.image = self.images[0]
         
@@ -142,6 +144,7 @@ class Bird():
         self.bird_shape.friction = 0.2
         self.bird_shape.elasticity = 0.8
         self.bird_shape.density = 1.0
+        self.bird_shape.collision_type = 1
         
         self.init_x, self.init_y = convert_to_pygame(x,y)
         self.radius = 150
@@ -234,10 +237,16 @@ class Bird():
         
         x, y = self.bird_body.position                  
         self.rect.center = convert_to_pygame(x, y)
-        
+
+def test(arb, space, data):
+    print("Privet!")
+    return True
+handler_bird_wood = space.add_collision_handler(1, 3)
+handler_bird_wood.begin = test
+
 # Bird is created in physics coordinates
-pole1 = Pole("Vertical", 740.0, 150.0)
-pole2 = Pole("Vertical", 830.0, 150.0)
+pole1 = Pole("Vertical", 740.0, 185.0)
+pole2 = Pole("Vertical", 830.0, 185.0)
 pole3 = Pole("Horizontal", 785.0, 250.0)
 bird = Bird(200.0, 300.0)
 earth = Earth(130.0)
