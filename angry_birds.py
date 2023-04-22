@@ -48,19 +48,19 @@ def convert_to_pygame(x: float, y: float):
 class Pole():
     def __init__(self, type: str,  init_x: float, init_y: float):
         image = pygame.image.load("wood.png")
+        image = image.subsurface((160,1),(23,169))
+        self.image = pygame.transform.scale(image, (12, 85))
         
-        if type == "Vertical":
-            self.image = image.subsurface((160,1),(23,169))
-        else:
-            self.image = pygame.transform.rotate(image.subsurface((160,1),(23,169)),90)
+        if type == "Horizontal":
+            self.image = pygame.transform.rotate(self.image, 90)
 
         self.body = pymunk.Body()
         self.body.position = init_x, init_y
         
         if type == "Vertical":
-            self.shape = pymunk.Poly.create_box(self.body,(23, 169))
+            self.shape = pymunk.Poly.create_box(self.body,(12, 85))
         else:
-            self.shape = pymunk.Poly.create_box(self.body,(169, 23))
+            self.shape = pymunk.Poly.create_box(self.body,(85, 12))
 
         self.shape.density = 0.5
         self.shape.friction = 0.8
@@ -236,13 +236,13 @@ class Bird():
         self.rect.center = convert_to_pygame(x, y)
         
 # Bird is created in physics coordinates
-pole1 = Pole("Vertical", 700.0, 220.0)
-pole2 = Pole("Vertical", 870.0, 220.0)
-pole3 = Pole("Horizontal", 785.0, 330.0)
+pole1 = Pole("Vertical", 740.0, 150.0)
+pole2 = Pole("Vertical", 830.0, 150.0)
+pole3 = Pole("Horizontal", 785.0, 250.0)
 bird = Bird(200.0, 300.0)
 earth = Earth(130.0)
-pig1 = Pig(785.0, 250.0)
-pig2 = Pig(785.0, 400.0)
+pig1 = Pig(785.0, 170.0)
+pig2 = Pig(785.0, 250.0)
 #pig3 = Pig(800.0,450.0)
 #pig4 = Pig(800.0,550.0)
 #pig5 = Pig(600.0,250.0)
