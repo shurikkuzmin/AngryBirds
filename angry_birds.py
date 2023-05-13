@@ -22,6 +22,7 @@ pygame.init()
 
 background = pygame.image.load("background.jpg")
 sprites = pygame.image.load("sprites.png")
+explosion = pygame.image.load("explosion.png")
 
 screen_width, screen_height = background.get_size()
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -104,6 +105,12 @@ class Pig():
         image3 = sprites.subsurface(281, 845, 119, 107)
         images = [image1, image2, image3]
         images = [pygame.transform.scale(image, (60, 54)) for image in images]
+        
+        explosion_images = []
+        for i in range(5):
+            explosion_images.append(explosion.subsurface(320*3, 230 * i, 320, 230))
+        self.explosion_images = [pygame.transform.scale(image, (60, 54)) for image in explosion_images]
+        
         self.images = images
         self.image = self.images[0]
         self.rect = self.image.get_rect()
@@ -116,10 +123,12 @@ class Pig():
         self.rect.center = convert_to_pygame(x, y)
         if self.total_energy_lost < 4000000.0:
             self.image = self.images[0]
-        elif self.total_energy_lost < 12000000.0:
+        elif self.total_energy_lost < 8000000.0:
             self.image = self.images[1]
-        else:
+        elif self.total_energy_lost < 1200000.0:
             self.image = self.images[2]
+        else:
+            self.image = self.explosion_images[2]
             
     def draw(self):
         screen.blit(self.image, self.rect)
