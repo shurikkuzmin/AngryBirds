@@ -100,19 +100,27 @@ class Pig():
         self.pig_shape.elasticity = 0.8
         self.pig_shape.collision_type = 2
         image1 = sprites.subsurface(279, 744, 119, 107)
-        image2 = sprites.subsurface(281, 845, 119, 107)
-        images = [image1, image2]
+        image2 = sprites.subsurface(164, 848, 119, 107)
+        image3 = sprites.subsurface(281, 845, 119, 107)
+        images = [image1, image2, image3]
         images = [pygame.transform.scale(image, (60, 54)) for image in images]
         self.images = images
         self.image = self.images[0]
         self.rect = self.image.get_rect()
+        self.total_energy_lost = 0.0
         
         space.add(self.pig_body, self.pig_shape)
     
     def update(self):
         x, y = self.pig_body.position
         self.rect.center = convert_to_pygame(x, y)
-    
+        if self.total_energy_lost < 4000000.0:
+            self.image = self.images[0]
+        elif self.total_energy_lost < 12000000.0:
+            self.image = self.images[1]
+        else:
+            self.image = self.images[2]
+            
     def draw(self):
         screen.blit(self.image, self.rect)
 
@@ -247,24 +255,31 @@ class Bird():
         self.rect.center = convert_to_pygame(x, y)
 
 def collision_bird_wood(arb, space, data):
-    print("Wood!")
     bird.collision = True
     return True
 
 def collision_bird_pig(arb, space, data):
-    print("Pig!")
     shapes = arb.shapes
     for i in range(2):
         if pigs[i].pig_shape == shapes[1]:
+            pigs[i].collision = True
             print("Pig " + str(i + 1))
     bird.collision = True
-    return True    
+    return True
+
+def postcollision_bird_pig(arb, space, data):
+    shapes = arb.shapes
+    for i in range(2):
+        if pigs[i].pig_shape == shapes[1]:
+            pigs[i].total_energy_lost = pigs[i].total_energy_lost + arb.total_ke
+            print(pigs[i].total_energy_lost)
 
 handler_bird_wood = space.add_collision_handler(1, 3)
 handler_bird_wood.begin = collision_bird_wood
 
 handler_bird_pig = space.add_collision_handler(1, 2)
 handler_bird_pig.begin = collision_bird_pig
+handler_bird_pig.post_solve = postcollision_bird_pig
 
 # Bird is created in physics coordinates
 pole1 = Pole("Vertical", 740.0, 185.0)
